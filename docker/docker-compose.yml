@@ -1,0 +1,39 @@
+# Set different value for COMPOSE_PROJECT_NAME (e.g. COMPOSE_PROJECT_NAME=inkasso_2) to run few instances of containers
+
+version: '2'
+
+services:
+    yii2_db:
+        build: ./mysql
+        ports:
+            - $MYSQL_PORT:3306
+        volumes:
+            - ./mysql/db:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+            MYSQL_DATABASE: $MYSQL_DATABASE
+    yii2_php:
+        build:
+            context: ./php-fpm
+            args:
+                PUID: $PUID
+                PGID: $PGID
+        links:
+            - yii2_db
+        working_dir: /var/www
+        environment:
+            MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+            MYSQL_DATABASE: $MYSQL_DATABASE
+        volumes:
+            - ../:/var/www
+    yii2_nginx:
+        build:
+            context: ./nginx
+            args:
+                ENVIRONMENT: $ENVIRONMENT
+        ports:
+            - $NGINX_PORT:80
+        links:
+            - yii2_php
+        volumes_from:
+            - yii2_php
