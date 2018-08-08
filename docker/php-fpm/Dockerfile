@@ -18,6 +18,8 @@ ENV user php
 RUN addgroup -S $user && adduser -S -G $user $user && \
     echo "$user ALL=(ALL)NOPASSWD: ALL" >> /etc/sudoers
 
+RUN composer global require "fxp/composer-asset-plugin:^1.4.1"
+
 WORKDIR /var/www
 
 COPY docker-entrypoint.sh /usr/local/bin/
